@@ -43,3 +43,47 @@ status: 'success',
 });
 });
 where ? is used to make the parameter y optional
+
+## Request Response Cycle
+
+![alt text](image.png)
+
+middleware is the code that intercepts req and res. Order of the middleware matters a lot. We must use next() function to call next middleware, req res cycle will get stuck. The last middleware sends response back to the client using res.end()
+e.g.
+app.use(express.json());
+app.use is used to use middleware
+
+Own middleware:
+app.use((req, res, next) => {
+console.log('Hello from middleware...');
+next();
+});
+app.use((req, res, next) => {
+req.reqTime = new Date().toISOString();
+next();
+});
+const getAllTours = (req, res) => {
+res.status(200).json({
+status: 'success',
+requestedTime: req.reqTime,
+results: tours.length,
+data: {
+tours,
+},
+});
+};
+
+## morgon package
+
+It is request logger middleware
+npm i morgon
+const morgon = require('morgon')
+app.use(morgan('dev'));
+
+output:
+GET /api/v1/tours 200 3.522 ms - 8751
+GET /api/v1/tours/59 404 1.489 ms - 44
+
+## Reference
+
+https://expressjs.com/en/4x/api.html
