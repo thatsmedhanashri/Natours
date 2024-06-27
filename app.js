@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json()); // middleware
 app.use(morgan('dev'));
 
-app.use((req, res, next) => {
-  console.log('Hello from middleware...');
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('Hello from middleware...');
+//   next();
+// });
 
 app.use((req, res, next) => {
   req.reqTime = new Date().toISOString();
@@ -144,19 +144,32 @@ const deleteUser = (req, res) => {
 // app.delete('/api/v1/tours/:id', deleteTour);
 
 // Reduced repeatative code
-app.route('/api/v1/tours').get(getAllTours).post(addTour);
-app
-  .route('/api/v1/tours/:id')
-  .get(getTour)
-  .patch(updateTour)
-  .delete(deleteTour);
+// app.route('/api/v1/tours').get(getAllTours).post(addTour);
+// app
+//   .route('/api/v1/tours/:id')
+//   .get(getTour)
+//   .patch(updateTour)
+//   .delete(deleteTour);
 
-app.route('/api/v1/users').get(getAllUsers).post(addUser);
-app
-  .route('/api/v1/users/:id')
-  .get(getUser)
-  .patch(updateUser)
-  .delete(deleteUser);
+// app.route('/api/v1/users').get(getAllUsers).post(addUser);
+// app
+//   .route('/api/v1/users/:id')
+//   .get(getUser)
+//   .patch(updateUser)
+//   .delete(deleteUser);
+
+// Creating and mounting multiple routers
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter.route('/').get(getAllTours).post(addTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
+
+userRouter.route('/').get(getAllUsers).post(addUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
 
 app.listen(9090, () => {
   console.log('App is running on port 9090...');
