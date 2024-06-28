@@ -34,6 +34,7 @@ All state should be handled on the client. Each request must contain all the inf
 404 - Resource not found
 500 - Server error
 204 - Content not
+400 - Bad request
 
 ## Responding to url parameters
 
