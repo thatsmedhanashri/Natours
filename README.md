@@ -33,7 +33,7 @@ All state should be handled on the client. Each request must contain all the inf
 201 - Created
 404 - Resource not found
 500 - Server error
-204 - Content not
+204 - Content not [the server has successfully fulfilled the request and there is no additional information to send back.]
 400 - Bad request
 
 ## Responding to url parameters
