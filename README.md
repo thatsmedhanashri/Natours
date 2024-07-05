@@ -88,3 +88,7 @@ GET /api/v1/tours/59 404 1.489 ms - 44
 ## Reference
 
 https://expressjs.com/en/4x/api.html
+
+## Info
+
+The == operator does the type conversion of the operands before comparison, whereas the === operator compares the values as well as the data types of the operands.

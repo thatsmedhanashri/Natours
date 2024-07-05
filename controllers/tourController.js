@@ -37,7 +37,27 @@ exports.getAllTours = async (req, res) => {
 
   /* Using actual database */
   try {
-    const tours = await Tour.find();
+    // const tours = await Tour.find();
+
+    // Filtering
+    // const tours = await Tour.find({
+    //   duration: 5,
+    //   difficulty: 'easy',
+    // });
+
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    // const tours = await Tour.find(req.query); // Postman url - http://localhost:9090/api/v1/tours?duration=5&difficulty=easy
+
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    const tours = await Tour.find(queryObj);
+
     res.status(200).json({
       status: 'success',
       data: tours,
