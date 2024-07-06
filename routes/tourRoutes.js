@@ -9,6 +9,8 @@ router
   .route('/top-5-tours')
   .get(tourController.aliasTopTours, tourController.getAllTours); // Aliasing
 
+router.route('/tour-stats').get(tourController.getTourStats);
+
 router.route('/').get(tourController.getAllTours).post(tourController.addTour);
 
 router

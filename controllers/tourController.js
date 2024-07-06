@@ -1,29 +1,6 @@
 const fs = require('fs');
 const Tour = require('./../models/tourModel');
-
-// exports.checkId = (req, res, next, val) => {
-//   console.log(`Tour id: ${val}`);
-//   const id = req.params.id * 1;
-//   const tour = tours.find((x) => x.id === id);
-//   if (!tour) {
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: 'Tour not found',
-//     });
-//   }
-//   next();
-// };
-
-// exports.checkBody = (req, res, next) => {
-//   console.log('checking request body...');
-//   if (!req.body.name || !req.body.price) {
-//     return res.status(400).json({
-//       status: 'fail',
-//       message: 'Bad request',
-//     });
-//   }
-//   next();
-// };
+const apiFeatures = require('./../utils/apiFeatures');
 
 // Aliasing
 exports.aliasTopTours = (req, res, next) => {
@@ -34,105 +11,21 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 exports.getAllTours = async (req, res) => {
-  // res.status(200).json({
-  //   status: 'success',
-  //   requestedTime: req.reqTime,
-  //   results: tours.length,
-  //   data: {
-  //     tours,
-  //   },
-  // });
-
-  /* Using actual database */
   try {
-    // const tours = await Tour.find();
+    const features = new apiFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limit()
+      .paginate();
 
-    // Filtering
-    // const tours = await Tour.find({
-    //   duration: 5,
-    //   difficulty: 'easy',
-    // });
-
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    // const tours = await Tour.find(req.query); // Postman url - http://localhost:9090/api/v1/tours?duration=5&difficulty=easy
-
-    // Filtering
-    // const queryObj = { ...req.query };
-    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    // excludedFields.forEach((el) => delete queryObj[el]);
-    // const tours = await Tour.find(queryObj);
-
-    // Advanced filtering
-    // const queryObj = { ...req.query };
-    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    // excludedFields.forEach((el) => delete queryObj[el]);
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // const tours = await Tour.find(JSON.parse(queryStr));
-
-    // Sorting
-    // const queryObj = { ...req.query };
-    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    // excludedFields.forEach((el) => delete queryObj[el]);
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // let query = Tour.find(JSON.parse(queryStr));
-
-    // // url - http://localhost:9090/api/v1/tours?sort=price [sorts in ascending order]
-    // // url - http://localhost:9090/api/v1/tours?sort=-price [sorts in descending order]
-    // if (req.query.sort) {
-    //   // const tours = await query.sort(req.query.sort);
-
-    //   // url - http://localhost:9090/api/v1/tours?sort=price,-ratingsAverage [sorting by multiple params]
-    //   const sortBy = req.query.sort.split(',').join(' ');
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query = query.sort('-createdAt');
-    // }
-
-    // Projection or limiting fields
-    // const queryObj = { ...req.query };
-    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    // excludedFields.forEach((el) => delete queryObj[el]);
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // let query = Tour.find(JSON.parse(queryStr));
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(',').join(' ');
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select('-__v');
-    // }
-
-    // Pagination
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    let query = Tour.find(JSON.parse(queryStr));
-    fields = req.query.fields.split(',').join(' ');
-    query = query.select(fields);
-
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-    const tours = await query;
-    if (tours.length < 1) {
-      throw new Error('This page does not exist.');
-    }
+    const tours = await features.query;
 
     res.status(200).json({
       status: 'success',
       data: tours,
     });
   } catch (err) {
+    console.log(err);
     res.status(400).json({
       status: 'fail',
       message: err,
@@ -141,16 +34,6 @@ exports.getAllTours = async (req, res) => {
 };
 
 exports.getTour = async (req, res) => {
-  // const id = req.params.id * 1;
-  // const tour = tours.find((x) => x.id === id);
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     tour,
-  //   },
-  // });
-
-  /* Using actual database */
   try {
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
@@ -166,21 +49,6 @@ exports.getTour = async (req, res) => {
 };
 
 exports.addTour = async (req, res) => {
-  /* Using mock data */
-  // We can get request body using middleware
-  // console.log(req.body);
-  // const newId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign({ id: newId }, req.body);
-  // tours.push(newTour);
-  // fs.writeFile(
-  //   `${__dirname}/dev-data/data/tours-simple.json`,
-  //   JSON.stringify(tours),
-  //   (err) => {
-  //     res.status(201).json(newTour);
-  //   }
-  // );
-
-  /* Using actual database */
   try {
     const newTour = await Tour.create(req.body);
     res.status(201).json({
@@ -190,32 +58,12 @@ exports.addTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'fail',
-      // message: 'Invalid data sent!',
       message: err,
     });
   }
 };
 
 exports.updateTour = async (req, res) => {
-  // const id = req.params.id * 1;
-  // const tour = tours.find((x) => x.id === id);
-  // tour.duration = req.body.duration;
-  // tours[id] = tour;
-  // console.log(tours);
-  // fs.writeFile(
-  //   `${__dirname}/dev-data/data/tours-simple.json`,
-  //   JSON.stringify(tours),
-  //   (err) => {
-  //     res.status(200).json({
-  //       status: 'success',
-  //       data: {
-  //         tour,
-  //       },
-  //     });
-  //   }
-  // );
-
-  /* Using actual database */
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -234,14 +82,6 @@ exports.updateTour = async (req, res) => {
 };
 
 exports.deleteTour = async (req, res) => {
-  // Logic implementation to delete the tour from tour array
-  // for (let i = 0; i < tours.length; i++) {}
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: null,
-  // });
-
-  /* Using actual database */
   try {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
@@ -253,5 +93,43 @@ exports.deleteTour = async (req, res) => {
       status: 'fail',
       message: err,
     });
+  }
+};
+
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          // _id: '$ratingsAverage',
+          numTours: { $sum: 1 },
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 },
+      },
+      // {
+      //   $match: { _id: { $ne: 'EASY' } },
+      // },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: stats,
+    });
+  } catch (err) {
+    console.log(err);
+    // res.status(400).json({
+    //   status: 'fail',
+    //   message: err,
+    // });
   }
 };
