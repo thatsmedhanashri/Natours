@@ -25,6 +25,14 @@ const Tour = require('./../models/tourModel');
 //   next();
 // };
 
+// Aliasing
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = 5;
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   // res.status(200).json({
   //   status: 'success',
@@ -53,10 +61,72 @@ exports.getAllTours = async (req, res) => {
 
     // const tours = await Tour.find(req.query); // Postman url - http://localhost:9090/api/v1/tours?duration=5&difficulty=easy
 
+    // Filtering
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
+    // const tours = await Tour.find(queryObj);
+
+    // Advanced filtering
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
+    // let queryStr = JSON.stringify(queryObj);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // const tours = await Tour.find(JSON.parse(queryStr));
+
+    // Sorting
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
+    // let queryStr = JSON.stringify(queryObj);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // let query = Tour.find(JSON.parse(queryStr));
+
+    // // url - http://localhost:9090/api/v1/tours?sort=price [sorts in ascending order]
+    // // url - http://localhost:9090/api/v1/tours?sort=-price [sorts in descending order]
+    // if (req.query.sort) {
+    //   // const tours = await query.sort(req.query.sort);
+
+    //   // url - http://localhost:9090/api/v1/tours?sort=price,-ratingsAverage [sorting by multiple params]
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort('-createdAt');
+    // }
+
+    // Projection or limiting fields
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
+    // let queryStr = JSON.stringify(queryObj);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // let query = Tour.find(JSON.parse(queryStr));
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select('-__v');
+    // }
+
+    // Pagination
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    const tours = await Tour.find(queryObj);
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    let query = Tour.find(JSON.parse(queryStr));
+    fields = req.query.fields.split(',').join(' ');
+    query = query.select(fields);
+
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    const tours = await query;
+    if (tours.length < 1) {
+      throw new Error('This page does not exist.');
+    }
 
     res.status(200).json({
       status: 'success',
