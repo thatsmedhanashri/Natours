@@ -92,3 +92,17 @@ https://expressjs.com/en/4x/api.html
 ## Info
 
 The == operator does the type conversion of the operands before comparison, whereas the === operator compares the values as well as the data types of the operands.
+
+## Setting virtuals
+
+tourSchema.virtual('durationWeeks').get(function () {
+return this.duration / 7;
+});
+
+adding it in schema -
+{
+toJSON: { virtuals: true },
+toObject: { virtuals: true },
+}
+
+We can't query on virtuals because it doesn't present in the database.
