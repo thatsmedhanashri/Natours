@@ -71,7 +71,7 @@ tourSchema.virtual('durationWeeks').get(function () {
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 // It will not get called for insertMany(), update() or delete()
-// Here this keyword refers current document to be saved
+// Here 'this' keyword refers current document to be saved
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -90,7 +90,7 @@ tourSchema.post('save', function (doc, next) {
 });
 
 // QUERY MIDDLEWARE
-// Here this keyword refers curent query
+// Here 'this' keyword refers curent query
 // Get all tours except secret tours
 // tourSchema.pre('find', function (next) {
 //   this.find({ secretTour: { $ne: true } });
@@ -116,12 +116,14 @@ tourSchema.post(/^find/, function (docs, next) {
 
 // AGGREGATION MIDDLEWARE
 // Aggregation middleware is useful to add hooks before and after an aggregation executes
-// Here this points to the current aggregation object
+// Here 'this' points to the current aggregation object
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   console.log(this.pipeline());
   next();
 });
+
+// CHECK MODEL MIDDLEWARE
 
 const Tour = mongoose.model('Tour', tourSchema);
 
