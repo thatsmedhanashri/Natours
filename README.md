@@ -106,3 +106,31 @@ toObject: { virtuals: true },
 }
 
 We can't query on virtuals because it doesn't present in the database.
+
+## Built-In validators
+
+required
+maxlength - on string
+minlength - on string
+min - on number, date
+max - on number, date
+enum - allowed values
+
+Check documentation for more validators. We can also match the values with regex.
+Set updateValidators as true in updateRequest in Tour Controller.
+
+## Custom validators
+
+Here 'this' refers to the new document which get created, it will not work for update
+
+priceDiscount: {
+type: Number,
+validate: {
+validator: function (val) {
+return val < this.price;
+},
+message: 'Discount price ({VALUE}) should be below regular price.',
+},
+},
+
+We can use libraries like 'validator' to validate data.
