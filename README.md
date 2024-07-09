@@ -134,3 +134,9 @@ message: 'Discount price ({VALUE}) should be below regular price.',
 },
 
 We can use libraries like 'validator' to validate data.
+
+## Error Handling
+
+![alt text](image-1.png)
+
+err.stack - gives the info about where exactly an error occured
